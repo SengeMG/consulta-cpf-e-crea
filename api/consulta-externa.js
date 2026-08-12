@@ -1,5 +1,20 @@
 import { apiConfig, securityConfig } from '../config/index.js';
 
+function validarCPFDigitos(cpf) {
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+  const calcularDigito = (base) => {
+    const soma = base.split('').reduce((total, digito, indice) => {
+      return total + Number(digito) * (base.length + 1 - indice);
+    }, 0);
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+
+  return calcularDigito(cpf.slice(0, 9)) === Number(cpf[9]) &&
+    calcularDigito(cpf.slice(0, 10)) === Number(cpf[10]);
+}
+
 export default async function consultaExterna(req, res) {
   const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
   console.log('[CONSULTA EXTERNA] Request from IP:', clientIp);
@@ -9,15 +24,14 @@ export default async function consultaExterna(req, res) {
   }
 
   const { cpf } = req.query;
+  const cpfLimpo = cpf?.replace(/\D/g, '') || '';
 
-  if (!cpf || cpf.replace(/\D/g, '').length !== 11) {
+  if (!cpf || cpfLimpo.length !== 11 || !validarCPFDigitos(cpfLimpo)) {
     return res.status(400).json({
       error: 'CPF inválido ou não fornecido.',
       code: 'invalid_cpf'
     });
   }
-
-  const cpfLimpo = cpf.replace(/\D/g, '');
 
   try {
     console.log(`[EXTERNAL API] Consultando CPF: ${cpfLimpo}`);
