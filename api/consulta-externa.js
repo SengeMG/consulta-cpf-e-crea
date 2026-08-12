@@ -1,15 +1,17 @@
-import { apiConfig } from '../config/index.js';
+import { apiConfig, securityConfig } from '../config/index.js';
 
-export default async function handler(req, res) {
-  // CORS já tratado pelo middleware
+export default async function consultaExterna(req, res) {
+  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+  console.log('[CONSULTA EXTERNA] Request from IP:', clientIp);
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   const { cpf } = req.query;
-  
+
   if (!cpf || cpf.replace(/\D/g, '').length !== 11) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       error: 'CPF inválido ou não fornecido.',
       code: 'invalid_cpf'
     });
@@ -19,7 +21,7 @@ export default async function handler(req, res) {
 
   try {
     console.log(`[EXTERNAL API] Consultando CPF: ${cpfLimpo}`);
-    
+
     const response = await fetch(`${apiConfig.externalApi.baseUrl}?cpf=${cpfLimpo}`, {
       headers: {
         'X-API-KEY': apiConfig.externalApi.apiKey,
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    
+
     if (data.error) {
       return res.status(404).json({
         error: data.error || 'CPF não encontrado',
@@ -52,7 +54,7 @@ export default async function handler(req, res) {
 
     console.log(`[EXTERNAL API] Sucesso na consulta do CPF: ${cpfLimpo}`);
     return res.status(200).json(formattedData);
-    
+
   } catch (error) {
     console.error('[EXTERNAL API] Erro na consulta externa:', error);
     return res.status(500).json({

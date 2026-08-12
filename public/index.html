@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sistema de consulta de CPF e CNPJ - Desenvolvido por Mateus Teixeira">
-  <title>Consulta de CPF/CNPJ — SENGE‑MG</title>
-  
+  <meta name="description" content="Sistema de consulta de CPF, CNPJ e CEP - Desenvolvido por Mateus Teixeira">
+  <title>Consulta de CPF/CNPJ/CEP — SENGE‑MG</title>
+
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
   <link rel="shortcut icon" href="favicon.png">
@@ -13,49 +14,83 @@
   <link rel="stylesheet" href="style.css">
   <script src="config.js"></script>
   <script src="devtools-message.js"></script>
+  <script src="custom-select.js" defer></script>
   <script src="script.js" defer></script>
 </head>
+
 <body>
   <div class="background-shapes"></div>
-  
+
   <!-- Botão Flutuante de Tema -->
   <button id="themeToggle" class="theme-toggle" title="Alternar Tema">
     <span class="theme-icon">🌙</span>
   </button>
-  
+
   <main class="container">
     <!-- Indicador de Status -->
     <div id="statusIndicator" class="status-indicator">
       <span class="status-dot"></span>
       <span class="status-text">Sistema Online</span>
     </div>
-    
+
     <div class="card">
       <header class="card-header">
         <div class="logo">MG</div>
         <div class="org">
           <h1>SENGE‑MG</h1>
-          <p>Consulta de CPF/CNPJ Integrada</p>
+          <p>Consulta de CPF/CNPJ/CEP Integrada</p>
         </div>
       </header>
 
       <section class="card-body">
         <form id="form" onsubmit="return false">
-          <select id="source" title="Fonte da Consulta">
-              <option value="api">🌐 API Pública</option>
-              <option value="crea">🏗️ CREA-MG (Temporariamente Indisponível)</option>
-          </select>
+          <!-- Custom Dropdown -->
+          <div class="custom-select-wrapper">
+            <div class="custom-select" id="customSelect">
+              <div class="custom-select-trigger">
+                <span class="custom-select-icon">🌐</span>
+                <span class="custom-select-text">Consulta CPF</span>
+                <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="custom-select-options">
+                <div class="custom-option active" data-value="api">
+                  <span class="option-icon">🌐</span>
+                  <span class="option-text">Consulta CPF</span>
+                </div>
+                <div class="custom-option" data-value="cnpj">
+                  <span class="option-icon">🏢</span>
+                  <span class="option-text">Consulta CNPJ</span>
+                </div>
+                <div class="custom-option" data-value="cep">
+                  <span class="option-icon">📍</span>
+                  <span class="option-text">Consulta CEP</span>
+                </div>
+                <div class="custom-option" data-value="crea">
+                  <span class="option-icon">🏗️</span>
+                  <span class="option-text">Consultar CREA-MG</span>
+                </div>
+              </div>
+            </div>
+            <!-- Hidden select for compatibility -->
+            <select id="source" style="display: none;">
+              <option value="api">🌐 Consulta CPF</option>
+              <option value="cnpj">🏢 Consulta CNPJ</option>
+              <option value="cep">📍 Consulta CEP</option>
+              <option value="crea">🏗️ Consultar CREA-MG</option>
+            </select>
+          </div>
           <div id="inputContainer">
-            <input id="cpf" type="text" placeholder="Digite o CPF" maxlength="14" autocomplete="off" />
-            <button id="check" type="submit">Consultar</button>
+            <div class="document-input-wrapper">
+              <input id="cpf" type="text" placeholder="Digite o CPF" maxlength="14" autocomplete="off"
+                aria-describedby="documentValidation" aria-invalid="false" />
+              <div id="documentValidation" class="document-validation" role="status" aria-live="polite"></div>
+            </div>
+            <button id="check" type="submit" disabled>Consultar</button>
           </div>
         </form>
-        <div class="hint">Limite de 15 consultas por min.</div>
-        
-        <!-- Contador de Consultas -->
-        <div class="consult-counter">
-          Consultas neste minuto: <span id="consultCount">0</span>/15
-        </div>
+        <!-- Hint removida conforme solicitação (UI dinâmica agora) -->
 
         <div id="banner" class="banner" style="display:none"></div>
 
@@ -69,7 +104,7 @@
             <div class="label">Nome/Razão Social</div>
             <div id="outNome" class="value copyable">—</div>
           </div>
-          
+
           <!-- Campos específicos de CPF -->
           <div class="field" id="field-genero">
             <div class="label">Gênero</div>
@@ -79,6 +114,10 @@
             <div class="label">Nascimento</div>
             <div id="outNascimento" class="value copyable">—</div>
           </div>
+          <div class="field" id="field-idade">
+            <div class="label">Idade</div>
+            <div id="outIdade" class="value copyable">—</div>
+          </div>
           <div class="field crea-field" style="display: none;">
             <div class="label">Situação CREA</div>
             <div id="outSituacao" class="value copyable">—</div>
@@ -87,7 +126,7 @@
             <div class="label">Título Profissional</div>
             <div id="outTitulo" class="value copyable">—</div>
           </div>
-          
+
           <!-- Campos específicos de CNPJ -->
           <div class="field cnpj-field" style="display: none;">
             <div class="label">Nome Fantasia</div>
@@ -132,19 +171,48 @@
             <div class="label">E-mail</div>
             <div id="outEmail" class="value copyable">—</div>
           </div>
+
+          <!-- Campos específicos de CEP -->
+          <div class="field cep-field" style="display: none;">
+            <div class="label">CEP</div>
+            <div id="outCepResultado" class="value copyable">—</div>
+          </div>
+          <div class="field cep-field" style="display: none;">
+            <div class="label">Logradouro</div>
+            <div id="outLogradouro" class="value copyable">—</div>
+          </div>
+          <div class="field cep-field" style="display: none;">
+            <div class="label">Bairro</div>
+            <div id="outBairroCep" class="value copyable">—</div>
+          </div>
+          <div class="field cep-field" style="display: none;">
+            <div class="label">Cidade/UF</div>
+            <div class="two-columns">
+              <div id="outCidadeCep" class="value copyable">—</div>
+              <div id="outUfCep" class="value copyable">—</div>
+            </div>
+          </div>
+          <div class="field cep-field" style="display: none;">
+            <div class="label">DDD</div>
+            <div id="outDdd" class="value copyable">—</div>
+          </div>
+          <div class="field cep-field" style="display: none;">
+            <div class="label">IBGE</div>
+            <div id="outIbge" class="value copyable">—</div>
+          </div>
         </div>
       </section>
     </div>
     <footer class="footer-note">
-        Interface de consulta interna | 
-        <a href="https://instagram.com/theuska._" target="_blank" rel="noopener noreferrer" class="instagram-link">
-          Mateus Teixeira
-        </a>
+      Interface de consulta interna |
+      <a href="https://instagram.com/theuska._" target="_blank" rel="noopener noreferrer" class="instagram-link">
+        Mateus Teixeira
+      </a>
     </footer>
   </main>
-  
+
   <div id="toast" class="toast"></div>
-  
+
   <!-- Modal Glassmorphism -->
   <div id="modal" class="modal">
     <div class="modal-backdrop"></div>
@@ -167,4 +235,5 @@
   </div>
 
 </body>
+
 </html>
