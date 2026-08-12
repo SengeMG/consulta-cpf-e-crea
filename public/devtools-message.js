@@ -1,98 +1,35 @@
-// Mensagem especial para desenvolvedores no DevTools
-(function() {
-  'use strict';
-  
-  const logo = `
-╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║  🚀 Sistema de Consulta CPF/CNPJ - SENGE-MG             ║
-║                                                          ║
-║  🛠️  Desenvolvido por: Mateus Teixeira                   ║
-║  📧 Instagram: @theuska._                                ║
-║  💼 Todos os direitos reservados                        ║
-║                                                          ║
-║     ╔═══════════════════════════════════════╗            ║
-║     ║                                       ║            ║
-║     ║  💡 Se precisa de um sistema similar, ║            ║
-║     ║      faça um orçamento!               ║            ║
-║     ║                                       ║            ║
-║     ║  📱 Instagram: @theuska._             ║            ║
-║     ║                                       ║            ║
-║     ╚═══════════════════════════════════════╝            ║
-║                                                          ║
-║  🌟 Sistema desenvolvido com segurança e qualidade      ║
-║  🔒 Protegido por múltiplas camadas de segurança         ║
-║  ⚡ Otimizado para performance e mobilidade              ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-`;
+/**
+ * Mensagem de Marketing para Desenvolvedores curiosos
+ */
+(function () {
+    const styles = [
+        'background: linear-gradient(135deg, #0b5ed7, #2c7be5)',
+        'color: white',
+        'display: block',
+        'text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3)',
+        'box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 5px 3px -5px rgba(0, 0, 0, 0.5), 0 -13px 5px -10px rgba(255, 255, 255, 0.4) inset',
+        'line-height: 40px',
+        'text-align: center',
+        'font-weight: bold',
+        'font-size: 20px',
+        'border-radius: 5px',
+        'padding: 10px 20px'
+    ].join(';');
 
-  // Função para detectar quando DevTools está aberto
-  function detectDevTools() {
-    const threshold = 160;
-    
-    const detect = function() {
-      if (window.outerHeight - window.innerHeight > threshold || 
-          window.outerWidth - window.innerWidth > threshold) {
-        return true;
-      }
-      return false;
-    };
-    
-    // Verifica imediatamente
-    if (detect()) {
-      showDevMessage();
-      return;
-    }
-    
-    // Continua verificando periodicamente
-    const interval = setInterval(() => {
-      if (detect()) {
-        showDevMessage();
-        clearInterval(interval);
-      }
-    }, 500);
-  }
-  
-  function showDevMessage() {
-    // Evita mostrar múltiplas vezes
-    if (document.querySelector('.devtools-detected')) {
-      return;
-    }
-    
-    // Adiciona marca para evitar múltiplas exibições
-    const marker = document.createElement('div');
-    marker.className = 'devtools-detected';
-    marker.style.display = 'none';
-    document.body.appendChild(marker);
-    
-    // Styles para o console
-    console.clear();
-    console.log('%c' + logo, 'color: #0b5ed7; font-family: Courier, monospace; font-size: 11px; font-weight: bold; line-height: 1.2;');
-    
-    console.log('%c📞 Contato para Orçamentos de Sistemas Web', 'color: #2c7be5; font-size: 16px; font-weight: bold;');
-    console.log('%cInstagram: @theuska._', 'color: #1f9d55; font-size: 14px; font-weight: bold;');
-    console.log('%c💼 Desenvolvido por Mateus Teixeira', 'color: #6b7280; font-size: 12px;');
-    console.log('%c⚖️ Todos os direitos reservados', 'color: #6b7280; font-size: 12px;');
-    console.log('%c', 'color: #0b5ed7;');
-    console.log('%c🔧 Este sistema foi desenvolvido com:', 'color: #a7b5c8; font-weight: bold;');
-    console.log('%c   ✓ Node.js + Express', 'color: #1f9d55;');
-    console.log('%c   ✓ Segurança Avançada (Rate Limiting, Helmet, CORS)', 'color: #1f9d55;');
-    console.log('%c   ✓ Validação Rigorosa de Dados', 'color: #1f9d55;');
-    console.log('%c   ✓ Interface Responsiva', 'color: #1f9d55;');
-    console.log('%c   ✓ APIs Internas Seguras', 'color: #1f9d55;');
-    console.log('%c   ✓ Logs de Segurança', 'color: #1f9d55;');
-    console.log('%c', 'color: #0b5ed7;');
-    console.log('%c🚀 Precisa de algo similar? Entre em contato!', 'color: #d9534f; font-size: 14px; font-weight: bold;');
-  }
-  
-  // Detecta DevTools quando a página carrega
-  if (document.readyState === 'complete') {
-    detectDevTools();
-  } else {
-    document.addEventListener('DOMContentLoaded', detectDevTools);
-  }
-  
-  // Também pode ser trigerado diretamente
-  window.__DEVTOOLS_MESSAGE__ = showDevMessage;
+    const infoStyles = [
+        'color: #2c7be5',
+        'font-size: 14px',
+        'padding: 10px 0',
+        'line-height: 1.5',
+        'font-family: monospace'
+    ].join(';');
+
+    console.log('%c👋 Olá, Desenvolvedor!', styles);
+    console.log(
+        '%cCurioso para ver como isso funciona?\n' +
+        'Este sistema foi desenvolvido por Mateus Teixeira.\n' +
+        'Tecnologias: Node.js, Express, Vercel, Neon Postgres.\n\n' +
+        'Entre em contato: https://instagram.com/theuska._',
+        infoStyles
+    );
 })();

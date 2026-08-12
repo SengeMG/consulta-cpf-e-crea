@@ -55,13 +55,13 @@
 
 ### 📊 **Feedback Visual Avançado**
 - 🟢 **Status Dot** - Verde (Online) / Amarelo (Conectando) / Vermelho (Offline)
-- 📈 **Contador de Consultas** - Visualização do rate limit (X/15 consultas/minuto)
+- ✅ **Validação em Tempo Real** - CPF e CNPJ são validados matematicamente durante a digitação
 - ✨ **Auto-preenchimento Animado** - Campos preenchem com efeito elegante
 - 🔔 **Toast Notifications** - Feedback imediato das ações
 - 📋 **Progress Indicators** - Estados de carregamento visuais
 
 ### 🛡️ **Segurança Avançada**
-- 🔒 **Rate Limiting** - 15 consultas/minuto configuráveis
+- 🔒 **Rate Limiting** - Proteção server-side para consultas de CPF
 - ✅ **Validação Rigorosa** - CPF/CNPJ validados antes do processamento
 - 📡 **Headers Seguros** - Helmet.js para proteção contra ataques comuns
 - 🌐 **CORS Restrito** - Apenas domínios autorizados
@@ -112,7 +112,7 @@
 - Skeleton Loading animations
 - Batch data updates
 - Health check automático
-- Rate limiting visual
+- Rate limiting server-side
 - Copy functionality
 - Toast notifications
 - Status indicators
@@ -145,7 +145,9 @@ cp .env.example .env
 ```bash
 # Variáveis obrigatórias
 SECRET_KEY=sua-chave-secreta-forte-super-longa
-EXTERNAL_API_KEY=sua-api-key-do-apicpf-aqui
+CPF_API_KEY=sua-chave-apicpf
+CPF_API_BASE_URL=https://apicpf.com/api/consulta
+CNPJ_API_BASE_URL=https://receitaws.com.br/v1/cnpj
 
 # Configurações opcionais
 API_RATE_LIMIT_MAX_REQUESTS=15

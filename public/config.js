@@ -7,13 +7,13 @@ window.APP_CONFIG = {
     crea: '/api/consulta-crea',
     cnpj: '/api/consulta-cnpj'
   },
-  
+
   // Configurações de rate limiting
   rateLimit: {
-    maxRequests: 15,
+    maxRequests: 5,
     windowSeconds: 60
   },
-  
+
   // Configurações de validação
   validation: {
     cpf: {

@@ -1,97 +1,21 @@
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
-import { apiConfig } from '../config/index.js';
+// URL externa do CREA-MG para redirecionamento
+const CREA_EXTERNAL_URL = 'https://crea-mg.sitac.com.br/app/view/sight/externo?form=PesquisarProfissionalEmpresa';
 
-// Helper para formatar o CPF
-const formatCpfForCrea = (cpf) => String(cpf || '').replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-
-// Nossa função principal, agora mais limpa
+// Nossa função principal - agora apenas retorna a URL para redirecionamento
 export default async function handler(req, res) {
     // Configurações de CORS já são tratadas pelo middleware
-    
+    // Rate Limit é gerenciado exclusivamente pelo middleware do Express (server.js)
+
     // Responde imediatamente para requisições OPTIONS (pré-voo)
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    const { cpf } = req.query;
-    if (!cpf || cpf.replace(/\D/g, '').length !== 11) {
-        return res.status(400).json({ error: 'CPF inválido ou não fornecido.' });
-    }
-
-    let browser = null;
-    console.log('[CREA Scraper] Iniciando consulta para CPF:', cpf);
-
-    try {
-        // Lança o navegador usando configurações seguras
-        browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: apiConfig.crea.headless,
-            ignoreHTTPSErrors: true,
-        });
-
-        const page = await browser.newPage();
-        const TIMEOUT = apiConfig.crea.timeout;
-        page.setDefaultNavigationTimeout(TIMEOUT);
-        
-        console.log('[CREA] Navegando para a página do CREA...');
-        await page.goto(apiConfig.crea.url);
-
-        console.log('[CREA Scraper] Preenchendo formulário...');
-        await page.waitForSelector('#cpfcnpj', { timeout: TIMEOUT });
-        await page.type('#cpfcnpj', formatCpfForCrea(cpf));
-        
-        await page.waitForSelector('button[type="submit"]', { timeout: TIMEOUT });
-        await page.click('button[type="submit"]');
-
-        console.log('[CREA Scraper] Aguardando resultados...');
-        // Esperamos que a página carregue e que a tabela de resultados ou uma mensagem de erro apareça
-        await page.waitForSelector('.table-responsive, .alert-warning', { timeout: TIMEOUT });
-        
-        console.log('[CREA Scraper] Extraindo dados da página...');
-        const result = await page.evaluate(() => {
-            const errorAlert = document.querySelector('.alert-warning');
-            if (errorAlert && errorAlert.innerText.includes("Nenhum registro encontrado")) {
-                return { notFound: true };
-            }
-
-            const row = document.querySelector('.table-responsive tbody tr');
-            if (!row) {
-                return { error: "A estrutura da tabela de resultados não foi encontrada." };
-            }
-            
-            const nome = row.cells[1]?.innerText.trim();
-            const situacao = row.cells[2]?.innerText.trim();
-            const titulo = row.cells[3]?.innerText.trim();
-            
-            return { nome, situacao, titulo };
-        });
-
-        if (result.notFound) {
-            console.log('[CREA Scraper] Profissional não encontrado.');
-            return res.status(404).json({ message: 'Profissional não encontrado no CREA-MG.' });
-        }
-        
-        if (result.error) {
-             console.log('[CREA Scraper] Erro na estrutura do site:', result.error);
-             throw new Error(result.error);
-        }
-        
-        console.log('[CREA Scraper] Sucesso!');
-        return res.status(200).json(result);
-
-    } catch (error) {
-        console.error('[CREA Scraper] ERRO CRÍTICO:', error);
-        return res.status(500).json({ 
-            error: 'Falha crítica no processo de scraping.', 
-            details: error.message 
-        });
-    } finally {
-        if (browser !== null) {
-            await browser.close();
-            console.log('[CREA Scraper] Navegador fechado.');
-        }
-    }
+    // Retorna a URL externa para o frontend redirecionar
+    // O scraping foi removido pois não funciona na Vercel (sem Puppeteer)
+    return res.status(200).json({
+        redirect: true,
+        url: CREA_EXTERNAL_URL,
+        message: 'Redirecionando para o site oficial do CREA-MG'
+    });
 }
